@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcus Intel Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#e2e8f0;min-height:100vh;display:flex;}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+#sidebar{
+  width:220px;flex-shrink:0;
+  background:#111827;
+  border-right:1px solid #1f2937;
+  min-height:100vh;
+  position:sticky;top:0;
+  padding:20px 0;
+  display:flex;flex-direction:column;
+}
+#sidebar h1{font-size:14px;font-weight:700;color:#f8fafc;padding:0 16px 4px 16px;letter-spacing:-0.3px;}
+#sidebar .sub{font-size:10px;color:#475569;padding:0 16px 16px 16px;line-height:1.5;border-bottom:1px solid #1f2937;margin-bottom:12px;}
+#sidebar nav{display:flex;flex-direction:column;gap:2px;padding:0 8px;flex:1;}
+#sidebar nav a{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:6px;
+  font-size:11px;font-weight:500;color:#64748b;
+  text-decoration:none;cursor:pointer;
+  transition:background 0.15s,color 0.15s;
+}
+#sidebar nav a:hover{background:#1a2332;color:#94a3b8;}
+#sidebar nav a.active{background:#1c1115;border:1px solid #2d1f1f;color:#f8fafc;}
+#sidebar nav a .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot.red{background:#ef4444;}
+.dot.amber{background:#f59e0b;}
+.dot.blue{background:#3b82f6;}
+.dot.green{background:#22c55e;}
+
+#sidebar .sidebar-footer{padding:16px;font-size:9px;color:#334155;line-height:1.7;}
+#sidebar .sidebar-footer .version{color:#475569;}
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+#main{flex:1;padding:28px 32px;max-width:1100px;}
+.section{margin-bottom:40px;}
+.section-header{margin-bottom:16px;}
+.section-header h2{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#475569;padding-bottom:8px;border-bottom:1px solid #1f2937;}
+.section-header .section-desc{font-size:11px;color:#475569;margin-top:6px;}
+
+/* ============================================================
+   SIGNAL PANEL (top of page)
+   ============================================================ */
+.signal-panel{
+  background:linear-gradient(135deg,#1c1115 0%,#0d1117 100%);
+  border:1px solid #2d1f1f;
+  border-radius:12px;padding:24px 28px;
+  margin-bottom:32px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;
+}
+.signal-panel .sp-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#64748b;margin-bottom:10px;}
+.signal-panel .sp-title{font-size:13px;font-weight:700;color:#f8fafc;margin-bottom:6px;}
+.signal-panel .sp-body{font-size:11px;color:#94a3b8;line-height:1.65;}
+.signal-panel .sp-num{font-size:32px;font-weight:700;line-height:1;}
+.signal-panel .sp-num.red{color:#ef4444;}
+.signal-panel .sp-num.amber{color:#f59e0b;}
+.signal-panel .sp-num.blue{color:#60a5fa;}
+.signal-panel .sp-num small{font-size:14px;font-weight:400;color:#64748b;}
+
+/* ============================================================
+   EXEC SUMMARY
+   ============================================================ */
+.exec-box{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:22px 24px;}
+.exec-box h3{font-size:12px;font-weight:700;color:#f8fafc;margin-bottom:10px;}
+.exec-box p{font-size:12px;color:#94a3b8;line-height:1.8;}
+.exec-box p strong{color:#f8fafc;}
+.exec-box .bad{color:#ef4444;font-weight:600;}
+.exec-box .warn{color:#f59e0b;font-weight:600;}
+.exec-box .blue{color:#60a5fa;font-weight:600;}
+.exec-box .takeaway{margin-top:14px;padding:12px 14px;background:#131a24;border-radius:8px;border-left:3px solid #ef4444;}
+.exec-box .takeaway strong{font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:#ef4444;display:block;margin-bottom:4px;}
+
+/* ============================================================
+   KEY FINDINGS — 2-col cards
+   ============================================================ */
+.findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.f-card{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px 18px;}
+.f-card h4{font-size:12px;font-weight:600;color:#f8fafc;margin-bottom:8px;line-height:1.4;}
+.f-card p{font-size:11px;color:#94a3b8;line-height:1.7;}
+.f-card .verdict{margin-top:10px;display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;}
+.v-crit{background:#7f1d1d;color:#fca5a5;}
+.v-warn{background:#78350f;color:#fcd34d;}
+.v-info{background:#1e3a5f;color:#93c5fd;}
+
+/* ============================================================
+   DEFCON SECTION
+   ============================================================ */
+.deftabs{display:flex;gap:6px;margin-bottom:14px;}
+.deftab{padding:6px 14px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;background:#1a2332;color:#64748b;border:1px solid #1f2937;transition:all 0.15s;}
+.deftab.active{background:#1c1115;border-color:#b91c1c;color:#fca5a5;}
+.deftab-content{display:none;}
+.deftab-content.active{display:block;}
+
+.tl-table{width:100%;border-collapse:collapse;font-size:11px;}
+.tl-table th{text-align:left;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#475569;padding:8px 10px;border-bottom:1px solid #1f2937;}
+.tl-table td{padding:8px 10px;border-bottom:1px solid #111827;vertical-align:middle;}
+.tl-table tr.annotated td{background:#1a2332;border-radius:6px;}
+.tl-table tr.annotated td:first-child{border-radius:6px 0 0 6px;}
+.tl-table tr.annotated td:last-child{border-radius:0 6px 6px 0;}
+.tl-table tr:hover td{background:#1a2332;}
+.tl-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px;}
+.tl-badge.l2{background:#7f1d1d;color:#fca5a5;}
+.tl-badge.l3{background:#78350f;color:#fcd34d;}
+.tl-badge.l4{background:#1e3a5f;color:#93c5fd;}
+.tl-badge.l5{background:#1a3d2e;color:#6ee7b7;}
+.tl-badge.nd{background:#1a2332;color:#475569;}
+.tl-note{color:#f59e0b;font-size:10px;}
+.tl-note.red{color:#ef4444;}
+
+/* ============================================================
+   COUNTRY RISK TABLE
+   ============================================================ */
+.risk-table{width:100%;border-collapse:collapse;font-size:11px;}
+.risk-table th{text-align:left;font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#475569;padding:10px 12px;border-bottom:1px solid #1f2937;}
+.risk-table td{padding:11px 12px;border-bottom:1px solid #111827;vertical-align:middle;}
+.risk-table tr:hover td{background:#1a2332;}
+.sco{font-size:18px;font-weight:700;}
+.sco.crit{color:#ef4444;}
+.sco.high{color:#f97316;}
+.sco.elev{color:#f59e0b;}
+.sco.norm{color:#64748b;}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:0.5px;}
+.badge.crit{background:#7f1d1d;color:#fca5a5;}
+.badge.high{background:#78350f;color:#fcd34d;}
+.badge.elev{background:#78350f;color:#fcd34d;}
+.badge.norm{background:#1a2332;color:#64748b;}
+.arrow{font-size:11px;margin-right:4px;}
+.arrow.up{color:#ef4444;}
+.arrow.dn{color:#22c55e;}
+.signal-col{font-size:11px;color:#94a3b8;max-width:260px;}
+.signal-col strong{color:#e2e8f0;}
+
+/* ============================================================
+   CRYPTO
+   ============================================================ */
+.crypto-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.ctile{background:#1a2332;border:1px solid #1f2937;border-radius:10px;padding:16px;text-align:center;}
+.ctile .sym{font-size:9px;font-weight:700;letter-spacing:2px;color:#64748b;}
+.ctile .price{font-size:22px;font-weight:700;color:#f8fafc;margin:8px 0 4px;}
+.ctile .chg{font-size:12px;font-weight:500;}
+.ctile .chg.down{color:#ef4444;}
+.ctile .chg.up{color:#22c55e;}
+.ctile .chg.flat{color:#64748b;}
+.ctile .range{font-size:10px;color:#475569;margin-top:8px;}
+.ctile .stale{font-size:9px;color:#ef4444;margin-top:6px;display:block;}
+
+.notice-box{background:#131a24;border:1px solid #1f2937;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 16px;font-size:11px;color:#94a3b8;line-height:1.7;margin-top:14px;}
+
+/* ============================================================
+   DATA QUALITY — simple 5 columns
+   ============================================================ */
+.dq-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.dq-tile{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:14px 12px;}
+.dq-tile h4{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#475569;margin-bottom:8px;}
+.dq-bar{height:5px;background:#1f2937;border-radius:3px;overflow:hidden;margin-bottom:8px;}
+.dq-fill{height:100%;border-radius:3px;}
+.dq-tile .pct{font-size:20px;font-weight:700;color:#f8fafc;}
+.dq-tile .runs{font-size:10px;color:#475569;margin-top:2px;}
+.dq-tile .desc{font-size:10px;color:#334155;margin-top:6px;line-height:1.5;}
+
+/* ============================================================
+   FORECAST + SIGNALS — side by side
+   ============================================================ */
+.half-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.mini-card{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px 18px;}
+.mini-card h4{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#475569;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1f2937;}
+.flist{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.flist li{padding:10px 12px;background:#1a2332;border-radius:6px;font-size:11px;color:#94a3b8;line-height:1.6;border-left:3px solid #3b82f6;}
+.flist li.crit{border-left-color:#ef4444;background:#1c1115;}
+.flist li .fl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;display:block;}
+.flist li .fl.red{color:#ef4444;}
+.flist li .fl.blue{color:#3b82f6;}
+.slist{list-style:none;display:flex;flex-direction:column;gap:0;}
+.slist li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #111827;align-items:flex-start;font-size:11px;color:#94a3b8;}
+.slist li:last-child{border-bottom:none;}
+.sicon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.sicon.red{background:#7f1d1d;color:#fca5a5;}
+.sicon.amber{background:#78350f;color:#fcd34d;}
+.sicon.blue{background:#1e3a5f;color:#93c5fd;}
+
+/* ============================================================
+   LEGEND
+   ============================================================ */
+.legend-strip{display:flex;gap:14px;flex-wrap:wrap;margin-top:16px;padding:12px 14px;background:#111827;border:1px solid #1f2937;border-radius:8px;align-items:center;}
+.legend-strip span{font-size:10px;color:#475569;}
+.legend-sq{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SIDEBAR NAV
+     ============================================================ -->
+<div id="sidebar">
+  <h1>⚡ Intel Dashboard</h1>
+  <div class="sub">27 runs · May 12–18 2026<br>Source: WorldMonitor, CISA, USGS</div>
+
+  <nav>
+    <a href="#signal" class="active"><span class="dot red"></span>Threat Signal</a>
+    <a href="#summary"><span class="dot red"></span>Executive Summary</a>
+    <a href="#findings"><span class="dot amber"></span>Key Findings</a>
+    <a href="#defcon"><span class="dot red"></span>DEFCON Timeline</a>
+    <a href="#risk"><span class="dot red"></span>Country Risk</a>
+    <a href="#crypto"><span class="dot amber"></span>Crypto Markets</a>
+    <a href="#signals"><span class="dot amber"></span>Forecasts & Signals</a>
+    <a href="#quality"><span class="dot blue"></span>Data Quality</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <strong>Threat Level</strong><br>
+    <span style="color:#ef4444;font-size:11px;font-weight:700;">SEVERE</span><br>
+    5 theaters critical<br>
+    Multi-theater simultaneous
+    <div class="version" style="margin-top:8px;">Marcus Intel v1.0</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<div id="main">
+
+  <!-- SIGNAL PANEL -->
+  <div class="section" id="signal">
+    <div class="signal-panel">
+      <div>
+        <div class="sp-label">Fastest Mover</div>
+        <div class="sp-title">Russia</div>
+        <div class="sp-body">+34 points in 7 days<br>65 → 99 on May 16<br><strong class="bad">Sharpest signal in dataset</strong></div>
+      </div>
+      <div>
+        <div class="sp-label">Highest Consequence</div>
+        <div class="sp-title">Iran</div>
+        <div class="sp-body">95/100 sustained<br>12–18 month nuclear clock<br><strong style="color:#f59e0b;">Irreversible once crossed</strong></div>
+      </div>
+      <div>
+        <div class="sp-label">Escalation Pattern</div>
+        <div class="sp-title">DEFCON L2</div>
+        <div class="sp-body">37% of all readings<br>4 consecutive on May 16<br><strong style="color:#ef4444;">Peak 357% confidence</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section" id="summary">
+    <div class="section-header">
+      <h2>Executive Summary</h2>
+    </div>
+    <div class="exec-box">
+      <h3>Three concurrent crises — accelerating, not plateauing.</h3>
+      <p>
+        <span class="bad">Russia</span> is the sharpest mover. The May 16 DEFCON spike (357%) aligns with the documented Ukraine cross-border incursion. Score went from 65 → 99 in one week — exceptional velocity for a country risk score.
+        <br><br>
+        <span class="warn">Iran</span> is the highest-consequence scenario. Unlike Russia (reversible with a ceasefire), Iran's nuclear program is a one-way clock. If it crosses the 12–18 month enrichment threshold, no intervention undoes it.
+        <br><br>
+        <span class="bad">DEFCON L2</span> (extreme tension) is appearing in clusters, not randomly. May 16 had four consecutive L2 readings. L5 spikes that follow L2 clusters likely represent model recalibration, not genuine de-escalation.
+      </p>
+      <div class="takeaway">
+        <strong>Bottom line</strong>
+        The multi-theater simultaneous deterioration is the defining pattern. Five CRIT theaters simultaneously is structurally different from a single crisis — response capacity is split across theaters, and inter-theater dependencies (Russia/Iran axis, Korea/Japan) are not yet modeled.
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY FINDINGS -->
+  <div class="section" id="findings">
+    <div class="section-header">
+      <h2>Key Findings</h2>
+      <div class="section-desc">What the data actually shows — and what it means.</div>
+    </div>
+    <div class="findings-grid">
+
+      <div class="f-card">
+        <h4>Russia is the sharpest-moving signal</h4>
+        <p>+34 points in 7 days. The May 16 incursion appears to be the inflection point. A move that large in one week is exceptional — most scores don't move more than 5-10 pts/week.</p>
+        <div class="verdict v-crit">⚠ Priority surveillance</div>
+      </div>
+
+      <div class="f-card">
+        <h4>DEFCON L2 frequency is increasing</h4>
+        <p>L2 appears in clusters: May 12 (1 reading), May 14-16 (4 consecutive), May 17-18 (2). The May 16 cluster is the most intense. This is a pattern, not noise.</p>
+        <div class="verdict v-warn">⚡ Sustained escalation</div>
+      </div>
+
+      <div class="f-card">
+        <h4>5 CRIT theaters simultaneously</h4>
+        <p>Explicitly flagged as "highest concentration since Cold War." Multi-theater crises split response capacity. Inter-theater dependencies are untracked.</p>
+        <div class="verdict v-crit">⚠ Cross-theater dependencies unknown</div>
+      </div>
+
+      <div class="f-card">
+        <h4>Iran: lowest reversibility, highest consequence</h4>
+        <p>At 95/100. Nuclear program is a one-way clock once enrichment threshold is crossed. No diplomatic or military intervention snaps it back.</p>
+        <div class="verdict v-crit">⏱ Slow-burn, irreversible</div>
+      </div>
+
+      <div class="f-card">
+        <h4>Baltic: 23% / 90 days — explicit tail risk</h4>
+        <p>The only explicit probability in the dataset. Sounds low, but that's a 1-in-4 chance of a NATO Article 5 trigger within 90 days. Deserves independent tracking.</p>
+        <div class="verdict v-warn">📌 Specific near-term tail risk</div>
+      </div>
+
+      <div class="f-card">
+        <h4>Data quality limits what we can conclude</h4>
+        <p>DEFCON 37%, crypto 33%. Russia-crypto correlation cannot be confirmed. Any intraday correlation analysis between May 14-17 is speculative.</p>
+        <div class="verdict v-info">⚠ Data gaps limit correlation claims</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DEFCON -->
+  <div class="section" id="defcon">
+    <div class="section-header">
+      <h2>DEFCON Timeline — Annotated</h2>
+      <div class="section-desc">Every reading. Highlighted rows are flagged readings.</div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="tl-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Level</th>
+          <th>Confidence</th>
+          <th>Signal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>May 12 am</td><td><span class="tl-badge nd">—</span></td><td>no data</td><td>Scraper warming up</td></tr>
+        <tr class="annotated"><td>May 12 12:55</td><td><span class="tl-badge l3">L3</span></td><td>50%</td><td class="tl-note">Baseline elevated</td></tr>
+        <tr><td>May 12 14:41</td><td><span class="tl-badge l5">L5</span></td><td>50%</td><td>Brief de-escalation</td></tr>
+        <tr class="annotated"><td>May 12 18:02</td><td><span class="tl-badge l2">L2</span></td><td>244%</td><td class="tl-note red">⚠ First extreme reading</td></tr>
+        <tr><td>May 13 am</td><td><span class="tl-badge nd">—</span></td><td>no data</td><td>Gap</td></tr>
+        <tr><td>May 13 12:02</td><td><span class="tl-badge l3">L3</span></td><td>50%</td><td>Recovers</td></tr>
+        <tr class="annotated"><td>May 14 18:01</td><td><span class="tl-badge l2">L2</span></td><td>27%</td><td class="tl-note red">⚠ Re-escalation, low confidence</td></tr>
+        <tr class="annotated"><td>May 15 00:00</td><td><span class="tl-badge l3">L3</span></td><td>34%</td><td class="tl-note">Mixed — pre-incursion tension building</td></tr>
+        <tr class="annotated"><td>May 15 06:01</td><td><span class="tl-badge l2">L2</span></td><td>50%</td><td class="tl-note red">⚠ Escalating again</td></tr>
+        <tr><td>May 15 12:01</td><td><span class="tl-badge l3">L3</span></td><td>50%</td><td>Temporary drop</td></tr>
+        <tr class="annotated"><td>May 15 18:01</td><td><span class="tl-badge l5">L5</span></td><td>30%</td><td class="tl-note">Sharp L5 spike — possible model recalibration</td></tr>
+        <tr class="annotated"><td>May 16 00:00</td><td><span class="tl-badge l2">L2</span></td><td>255%</td><td class="tl-note red">⚠ Pre-incursion tension</td></tr>
+        <tr class="annotated"><td>May 16 06:02</td><td><span class="tl-badge l2">L2</span></td><td>357%</td><td class="tl-note red">⚠ PEAK — 4 consecutive L2 starts here</td></tr>
+        <tr class="annotated"><td>May 16 12:01</td><td><span class="tl-badge l2">L2</span></td><td>33%</td><td class="tl-note red">⚠ Sustained</td></tr>
+        <tr class="annotated"><td>May 16 20:36</td><td><span class="tl-badge l2">L2</span></td><td>165%</td><td class="tl-note red">⚠ Evening confirmation — incursion underway</td></tr>
+        <tr class="annotated"><td>May 17 00:02</td><td><span class="tl-badge l5">L5</span></td><td>41%</td><td class="tl-note">Post-incursion L5 spike — recalibration, not de-escalation</td></tr>
+        <tr><td>May 17 13:05</td><td><span class="tl-badge l5">L5</span></td><td>81%</td><td>Hold</td></tr>
+        <tr class="annotated"><td>May 17 19:31</td><td><span class="tl-badge l2">L2</span></td><td>139%</td><td class="tl-note red">⚠ Re-escalation after recalibration</td></tr>
+        <tr><td>May 18 09:33</td><td><span class="tl-badge l3">L3</span></td><td>50%</td><td>Settling</td></tr>
+        <tr><td>May 18 12:01</td><td><span class="tl-badge l3">L3</span></td><td>53%</td><td>Settling</td></tr>
+        <tr class="annotated"><td>May 18 18:01</td><td><span class="tl-badge l2">L2</span></td><td>338%</td><td class="tl-note red">⚠ New extreme reading — elevated again</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div class="legend-strip">
+      <span><span class="legend-sq" style="background:#7f1d1d;"></span>L2 Extreme</span>
+      <span><span class="legend-sq" style="background:#78350f;"></span>L3 Elevated</span>
+      <span><span class="legend-sq" style="background:#1e3a5f;"></span>L4 Guarded</span>
+      <span><span class="legend-sq" style="background:#1a3d2e;"></span>L5 Minimal</span>
+      <span><span class="legend-sq" style="background:#1f2937;border:1px dashed #334155;"></span>No data</span>
+      <span style="margin-left:auto;color:#ef4444;font-size:10px;">⚠ = flagged for attention</span>
+    </div>
+  </div>
+
+  <!-- COUNTRY RISK -->
+  <div class="section" id="risk">
+    <div class="section-header">
+      <h2>Country Risk Scores</h2>
+      <div class="section-desc">All 8 tracked countries. All trending up. Sorted by latest score.</div>
+    </div>
+    <div style="overflow-x:auto;">
+    <table class="risk-table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Latest</th>
+          <th>7-Day Range</th>
+          <th>Δ Move</th>
+          <th>Signal Assessment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="font-size:13px;">Iran</strong></td>
+          <td><span class="sco crit">95</span> <span class="badge crit">CRIT</span></td>
+          <td>0 → 100</td>
+          <td><span class="arrow up">↑</span>Ceiling hit</td>
+          <td class="signal-col"><strong>Slow-burn, highest consequence.</strong> 12–18mo nuclear clock. Irreversible once crossed. No intervention snaps it back.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">North Korea</strong></td>
+          <td><span class="sco crit">92</span> <span class="badge crit">CRIT</span></td>
+          <td>19 → 92</td>
+          <td><span class="arrow up">↑</span>+73 pts</td>
+          <td class="signal-col">Hit ceiling May 18. Instability index 0.87. Consistently critical — no relief window.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">Russia</strong></td>
+          <td><span class="sco high">78</span> <span class="badge high">HIGH</span></td>
+          <td>65 → 99</td>
+          <td><span class="arrow up">↑</span><strong style="color:#ef4444;font-size:12px;">+34 pts</strong></td>
+          <td class="signal-col"><strong>Sharpest mover in dataset.</strong> May 16 incursion pushed from ~70 to 99. Near-ceiling since.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">China</strong></td>
+          <td><span class="sco high">72</span> <span class="badge high">HIGH</span></td>
+          <td>10 → 75</td>
+          <td><span class="arrow up">↑</span>+65 pts</td>
+          <td class="signal-col">Wide range (10→75) may indicate volatile source data. Sustained HIGH since mid-window.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">Baltic Region</strong></td>
+          <td><span class="sco high">68</span> <span class="badge high">HIGH</span></td>
+          <td>68 → 82</td>
+          <td><span class="arrow up">↑</span>from 68</td>
+          <td class="signal-col"><strong>Only explicit tail-risk forecast:</strong> 23% escalation probability in 90 days. 1-in-4 NATO Article 5 trigger.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">Ukraine</strong></td>
+          <td><span class="sco elev">62</span> <span class="badge elev">ELEV</span></td>
+          <td>46 → 70</td>
+          <td><span class="arrow up">↑</span>+16 pts</td>
+          <td class="signal-col">Cross-border incursion May 16 confirmed by DEFCON spike. Sustained elevation, not declining.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">Israel</strong></td>
+          <td><span class="sco elev">54</span> <span class="badge elev">ELEV</span></td>
+          <td>51 → 70</td>
+          <td><span class="arrow up">↑</span>from 51</td>
+          <td class="signal-col">Gradual upward trend. Stable but not declining. East Med theater also at CRIT.</td>
+        </tr>
+        <tr>
+          <td><strong style="font-size:13px;">Mexico</strong></td>
+          <td><span class="sco norm">37</span> <span class="badge norm">NORM</span></td>
+          <td>32 → 70</td>
+          <td><span class="arrow up">↑</span>from 32</td>
+          <td class="signal-col">Wide range but currently below ELEV threshold. Lowest priority in tracked set.</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- CRYPTO -->
+  <div class="section" id="crypto">
+    <div class="section-header">
+      <h2>Crypto Markets — Directional Only</h2>
+      <div class="section-desc">All majors down. Data gap after May 13 — correlation with DEFCON spikes unconfirmed.</div>
+    </div>
+    <div class="crypto-grid">
+      <div class="ctile">
+        <div class="sym">BTC</div>
+        <div class="price">$77,066</div>
+        <div class="chg down">−4.2%</div>
+        <div class="range">$77k–$81k range</div>
+      </div>
+      <div class="ctile">
+        <div class="sym">ETH</div>
+        <div class="price">$2,136</div>
+        <div class="chg down">−3.4%</div>
+        <div class="range">$2,136–$2,319</div>
+      </div>
+      <div class="ctile">
+        <div class="sym">SOL</div>
+        <div class="price">$85.51</div>
+        <div class="chg down">~−10% est.</div>
+        <div class="range">$85–$95 est.</div>
+        <span class="stale">⚠ sparse data</span>
+      </div>
+      <div class="ctile">
+        <div class="sym">XRP</div>
+        <div class="price">~$1.42</div>
+        <div class="chg flat">flat</div>
+        <div class="range">$1.42–$1.47</div>
+        <span class="stale">⚠ sparse data</span>
+      </div>
+    </div>
+    <div class="notice-box">
+      <strong>⚠ Data gap:</strong> Crypto feed stopped logging May 13. Today's prices are from the current run only.
+      The correlation between the May 16 DEFCON spike and crypto price moves <strong>cannot be confirmed</strong> — we lack May 14-17 intraday data.
+    </div>
+  </div>
+
+  <!-- FORECASTS + SIGNALS -->
+  <div class="section" id="signals">
+    <div class="section-header">
+      <h2>AI Forecasts & Warning Signals</h2>
+    </div>
+    <div class="half-grid">
+      <div class="mini-card">
+        <h4>AI Forecasts</h4>
+        <ul class="flist">
+          <li class="crit">
+            <span class="fl red">⚠ Critical · 12–18 months</span>
+            Iran nuclear timeline to weapons-grade enrichment — lowest reversibility scenario in the dataset
+          </li>
+          <li>
+            <span class="fl blue">Elevated · 23% probability</span>
+            Baltic escalation within 90 days — the only explicit probability forecast in the data
+          </li>
+          <li class="crit">
+            <span class="fl red">⚠ Critical · Index 0.87</span>
+            Korean Peninsula instability — at threshold for critical designation
+          </li>
+        </ul>
+      </div>
+      <div class="mini-card">
+        <h4>Cross-Source Warning Signals</h4>
+        <ul class="slist">
+          <li>
+            <div class="sicon red">!</div>
+            <div>5 theaters at CRIT simultaneously — highest concentration since Cold War</div>
+          </li>
+          <li>
+            <div class="sicon red">!</div>
+            <div>DEFCON 338% — unprecedented global tension (May 18 current reading)</div>
+          </li>
+          <li>
+            <div class="sicon amber">~</div>
+            <div>Undersea cable proximity alerts: OMRAN/EPEG 24km, Tata TGN-Gulf 139km</div>
+          </li>
+          <li>
+            <div class="sicon amber">~</div>
+            <div>Nuclear facility proximity warnings: 7 facilities active</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA QUALITY -->
+  <div class="section" id="quality">
+    <div class="section-header">
+      <h2>Data Quality</h2>
+      <div class="section-desc">Know your limits. Coverage percentages for each feed.</div>
+    </div>
+    <div class="dq-strip">
+      <div class="dq-tile">
+        <h4>DEFCON</h4>
+        <div class="dq-bar"><div class="dq-fill" style="width:37%;background:#ef4444;"></div></div>
+        <div class="pct">37%</div>
+        <div class="runs">10 / 27 runs</div>
+        <div class="desc">Most readings missing during early scraper runs.</div>
+      </div>
+      <div class="dq-tile">
+        <h4>Country Scores</h4>
+        <div class="dq-bar"><div class="dq-fill" style="width:56%;background:#f59e0b;"></div></div>
+        <div class="pct">56%</div>
+        <div class="runs">15 / 27 runs</div>
+        <div class="desc">Sparse May 12–14. Improving mid-window.</div>
+      </div>
+      <div class="dq-tile">
+        <h4>Crypto</h4>
+        <div class="dq-bar"><div class="dq-fill" style="width:33%;background:#ef4444;"></div></div>
+        <div class="pct">33%</div>
+        <div class="runs">9 / 27 runs</div>
+        <div class="desc">Stopped May 13. Correlation analysis blocked.</div>
+      </div>
+      <div class="dq-tile">
+        <h4>CISA KEV</h4>
+        <div class="dq-bar"><div class="dq-fill" style="width:100%;background:#22c55e;"></div></div>
+        <div class="pct">100%</div>
+        <div class="runs">27 / 27 runs</div>
+        <div class="desc">Most reliable feed. No gaps.</div>
+      </div>
+      <div class="dq-tile">
+        <h4>Earthquakes</h4>
+        <div class="dq-bar"><div class="dq-fill" style="width:93%;background:#22c55e;"></div></div>
+        <div class="pct">93%</div>
+        <div class="runs">25 / 27 runs</div>
+        <div class="desc">Near-complete coverage throughout.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT — sidebar nav active state
+     ============================================================ -->
+<script>
+document.querySelectorAll('#sidebar nav a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('#sidebar nav a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
