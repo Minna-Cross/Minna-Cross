@@ -1,307 +1,218 @@
 # Minna Cross
 
-## Analytics Engineer
+## Analytics Engineer · Data Systems · Agentic Systems
 
-💻 [LinkedIn](https://www.linkedin.com/in/minna-cross/) | 📍 Remote Worker
+💻 [LinkedIn](https://www.linkedin.com/in/minna-cross/) · 📍 Ohio / Remote
 
-* * *
+---
 
-*I don't build dashboards. I build data systems — from finding where data lives in multiple source systems to turning it into something useful.*
+*I uncover the questions no one thought to ask and build the systems to answer them.*
 
-* * *
+I build data and automation systems for messy operational problems — especially where the difficult part is figuring out what the data actually represents before deciding how to model, measure, or automate it.
 
-## 🔧 Technical Stack
+My work spans source-system investigation, analytics engineering, dimensional and semantic modeling, analytical automation, and independent agentic-systems R&D.
 
-| Category | Skills |
-| --- | --- |
-| **Languages** | SQL (Advanced), Python |
-| **Warehouse** | Snowflake, Redshift |
-| **Databases** | MySQL, PostgreSQL |
-| **BI & Viz** | Looker (LookML), Tableau, PowerBI (DAX), MSTR, Alteryx Designer |
-| **ETL/ELT** | Custom SQL pipelines, PDTs, change data capture |
-| **Data Discovery** | LATERAL FLATTEN, nested JSON, source system exploration |
-| **Data Governance** | Data dictionaries (internal & external), documentation, lineage tracking |
-| **Infrastructure** | Terraform |
-| **CI/CD** | CircleCI |
-| **CRM & Operations** | Salesforce, Twilio |
-| **Workforce Systems** | Five9 (WFO), Paylocity (HRIS), Kronos, UKG, IEX, Verint |
-| **Industry Systems** | Pioneer (Pharmacy), TECSYS (WMS), EMR |
-| **Version Control** | GitHub |
-| **Methodologies** | Dimensional modeling, SCD Type 2, HIPAA/PHI/PII handling |
-| **Project Management** | Jira, Confluence |
-| **Agile** | Scrum, sprint planning, backlog refinement |
+---
 
-* * *
+## 🔧 Core Stack
 
-## 💻 Personal Projects
+| Area                         | Technologies & Methods                                                                                                                                               |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Data Engineering**         | SQL, Python, Snowflake, Redshift, PostgreSQL, MySQL, ETL/ELT, APIs, JSON                                                                                             |
+| **Modeling**                 | Dimensional modeling, Type 2 SCDs, temporal joins, hierarchical data, metric design                                                                                  |
+| **Analytics**                | Looker / LookML, Power BI / DAX, Tableau, MicroStrategy, Alteryx                                                                                                     |
+| **Data Investigation**       | Grain analysis, reconciliation, source validation, anomaly investigation, temporal logic                                                                             |
+| **Agentic Systems**          | LLM orchestration, reusable agent skills, multi-agent coordination, human-in-the-loop controls, bounded autonomy, retrieval grounding, provenance and drift auditing |
+| **Engineering & Governance** | GitHub, CircleCI, CI/CD, Terraform, lineage, documentation, data quality, sensitive-data controls                                                                    |
 
-### Even NBA (for Even Reality)
-Real-time NBA scores app for Even Reality G2 (glasses) & R1 (ring) smart devices:
+---
 
-```mermaid
-    flowchart LR
-        subgraph Schedule
-            ESPN[ESPN Schedule API]
-        end
-    
-        subgraph Cloudflare
-            Worker[Cloudflare Worker]
-            Cache[KV Cache TTL 15s]
-        end
-    
-        subgraph Source
-            NBA[NBA API]
-        end
-    
-        subgraph Devices
-            G2[Even G2Glasses]
-            R1[Even R1Ring]
-        end
-    
-        ESPN -->|Triggers every 15s| Worker
-        Worker --> NBA
-        Worker --> Cache
-        Cache -->|Auto-refresh| Worker
-        Worker --> G2
-        Worker --> R1
-```
+# Selected Systems
 
-**Features:**
+## 🤖 Agentic Systems Architecture
 
-* Triggers Cloudflare Worker every 15 seconds
-* Auto-selects active (live) NBA games, falls back to schedule for upcoming from ESPN
-* Green glowing "Live Feed" badge when game in progress on webapp
-* Play-by-play timeline with monospace alignment
-* Tap to cycle through games
-* Supports both G2 glasses and R1 ring functionality
+### Independent R&D · OpenClaw
 
-* * *
+I use agentic systems as a systems-engineering problem rather than treating model capability as sufficient evidence that an agent should be allowed to act.
 
-## 🏢 Work Experience
+My current OpenClaw environment operates as an orchestrated multi-actor runtime built around **12 reusable agent skills**. Skills encode reusable decision logic alongside failure modes and explicit boundaries for when they should not be used.
 
-### Senior Business Intelligence Analyst — Hilton
+I also designed an **L0–L5 authority model** that separates what an agent *can* do from what it is *authorized* to do. Consequential actions are governed through escalation paths and human-override controls rather than relying solely on runtime model judgment.
 
-*May 2025 – Present* | Remote
+A provenance and capability audit evaluates state across memory, knowledge, skills, ownership, dependencies, access boundaries, stale references, and configuration drift. Its first full run identified **19 broken cross-references and one missing-ownership regression**, which were then converted into additional system-level controls.
 
-Analytics resource for HRCC (Hilton Reservations & Customer Care) operations, focusing on data efficiency and guest service outcomes.
+The retrieval layer tracks source identity, evidence weighting, confidence, contradictions, and unresolved questions so retrieved information can be evaluated for more than semantic relevance alone.
 
-**What I'm working on:**
+---
 
-* Building ETL pipelines that combine Salesforce, telephony, and case data to model how contacts get routed and where service breaks down
-* Creating Alteryx workflows + Python scripts for anomaly detection — catching unusual patterns in IVR (interactive voice response) behavior before they become problems
-* Developing behavioral clustering models to segment caller types and optimize routing logic
-* Mentoring other analysts on writing reproducible, testable SQL
+## 🏀 Even NBA
 
-* * *
-
-### Data Analyst — Truepill
-
-*Mar 2022 – May 2025* | Remote
-
-This was a **full-stack analytics role** — I didn't just build reports, I built the entire data infrastructure from discovery to dashboard.
-
-**The Cross-Functional Scorecard (CFSC)**
-
-Built from scratch to unify workforce performance data across 5+ disconnected systems:
-
+Real-time NBA data application designed for **Even Realities G2 glasses and R1 ring** interactions.
 
 ```mermaid
-    flowchart LR
-        subgraph Sources
-            F[Five9]
-            P[Paylocity]
-            S[Salesforce]
-            Ph[Pioneer]
-            T[TECSYS]
-        end
-    
-        subgraph Snowflake
-            subgraph Raw
-                R1[order_events]
-                R2[employee_hours]
-                R3[customer_cases]
-            end
-    
-            subgraph Transform
-                T1[Unified Events]
-                T2[SCD Hierarchy]
-                T3[Scored Output]
-            end
-        end
-    
-        subgraph Looker
-            L1[Scorecard Dashboards]
-            L2[Employee Views]
-            L3[Client Reports]
-        end
-    
-        Sources --> Snowflake
-        R1 & R2 & R3 --> T1
-        T1 --> T2
-        T2 --> T3
-        T3 --> Looker
+flowchart LR
+    Scheduler[Scheduled Polling]
+
+    subgraph APIs
+        ESPN[ESPN Schedule API]
+        NBA[NBA API]
+    end
+
+    subgraph Cloudflare
+        Worker[Cloudflare Worker]
+        Cache[KV Cache]
+    end
+
+    subgraph Clients
+        Web[Web App]
+        G2[Even G2]
+        R1[Even R1]
+    end
+
+    Scheduler -->|Every 15 sec| Worker
+    Worker --> ESPN
+    Worker --> NBA
+    Worker <--> Cache
+
+    Worker --> Web
+    Worker --> G2
+    Worker --> R1
 ```
 
-**Impact:**
+The application automatically selects active games, falls back to upcoming schedule data when no game is live, caches responses through Cloudflare KV, and exposes live status and play-by-play data across the web interface and device interactions.
 
-* Served 200+ employees with self-service analytics
-* Eliminated ~15 hours/week of manual Excel reporting
-* Single source of truth for workforce performance
+---
 
-* * *
+## 🏗️ Cross-Functional Workforce Analytics
 
-## 🏗️ Architecture Deep Dive
+### Truepill
 
-### Problem 1: Employee Attribution
-
-**The challenge:** When an order moves through the system, multiple employees touch it (PV1 verification, PV2 verification, fill, pack). Traditional reporting couldn't tell you *which employee* completed *which task*.
-
-**My solution:**
+Built a workforce analytics system that unified operational and employee-performance data across **Five9, Paylocity, Salesforce, Pioneer, TECSYS, and Snowflake**.
 
 ```mermaid
-    flowchart TB
-        subgraph Input
-            A[Order URL Token]
-            B[Event Timestamp]
-            C[Employee ID]
-        end
-    
-        subgraph Process
-            D[Window Function]
-            D --> E{Is Latest Event?}
-            E -->|Yes| F[Link to Order]
-            E -->|No| G[Discard]
-        end
-    
-        subgraph Output
-            H[Employee Task Attribution]
-        end
-    
-        A & B & C --> D
-        F --> H
+flowchart LR
+    subgraph Sources
+        F[Five9]
+        P[Paylocity]
+        S[Salesforce]
+        PH[Pioneer]
+        T[TECSYS]
+    end
+
+    subgraph Snowflake
+        Raw[Raw Data]
+        Events[Unified Events]
+        SCD[Historical Employee Dimension]
+        Model[Scored Analytical Model]
+    end
+
+    subgraph Looker
+        Explore[Governed LookML]
+        Reporting[Self-Service Analytics]
+    end
+
+    Sources --> Raw
+    Raw --> Events
+    Events --> SCD
+    SCD --> Model
+    Model --> Explore
+    Explore --> Reporting
 ```
 
-Used `ROW_NUMBER()` to identify the last event per task type, then joined back to the order. This let us attribute work to the exact employee who did it — not just whoever was assigned to the order.
+A major challenge was **historical attribution**.
 
-**Dynamic weighting:** Different tasks have different complexity. I built percentile-based scoring (1-5 scale) that normalizes across task types so a fast packer gets compared fairly to a fast verifier.
+Employees changed managers, teams, and cost centers over time, which meant joining historical activity to current employee state produced incorrect reporting.
 
-* * *
+I built a **Type 2 Slowly Changing Dimension** with effective-date ranges so work could be attributed according to the employee's organizational state when the work occurred.
 
-### Problem 2: Historical Reporting
+I also built event-level attribution logic using SQL window functions to determine which employee actually performed specific fulfillment tasks instead of relying on current or order-level assignment.
 
-**The challenge:** Employees moved between cost centers and supervisors. Traditional joins gave you whoever was currently assigned — not who was responsible on the date the work happened.
+The resulting analytics system supported more than **200 employees**, eliminated approximately **15 hours per week of manual Excel reporting**, and became a common analytical source for workforce-performance reporting.
 
-**My solution:**
+---
+
+# Current Professional Work
+
+## Hilton · 2025–Present
+
+My current work focuses on analytics and optimization for contact-center operations.
+
+I build reusable analytical frameworks that combine operational, CRM, telephony, contact, booking, and workforce data; investigate source behavior and data-quality issues; develop SQL, Python, and Alteryx workflows; and build Power BI semantic models for operational and financial analysis.
+
+A growing portion of the work is focused on **analytical automation**: converting recurring investigation and business-review processes into reproducible Python-based systems that identify meaningful movements, validate metrics, and generate structured reporting outputs.
+
+I also support metric standardization, documentation, reproducible query logic, and data-governance practices across analytical work.
+
+---
+
+## Truepill · 2022–2025
+
+Worked across the full analytics stack from source-system discovery through Snowflake modeling, governed LookML, operational analytics, and reporting.
+
+Additional systems included a self-maintaining Snowflake business calendar, real-time SLA monitoring designed to surface revenue at risk before failures compounded, CI/CD workflows through GitHub and CircleCI, and analytics involving HIPAA-regulated PHI and sensitive PII.
+
+---
+
+## Earlier Systems Work · 2014–2022
+
+Before moving fully into data analytics, I worked extensively with workforce-management and operational systems across forecasting, capacity planning, system configuration, automation, troubleshooting, documentation, and long-term system maintenance.
+
+That background is a major reason I tend to treat data problems as **systems problems first**.
+
+---
+
+# How I Approach Data Problems
+
+When a number is wrong, the problem is often not the calculation.
+
+I tend to work backward through the system:
 
 ```mermaid
-    classDiagram
-        class EMPLOYEE_SCD {
-            +int employee_id
-            +string email
-            +int cost_center_1
-            +int cost_center_2
-            +int manager_id
-            +date effective_date
-            +date expiration_date
-        }
-    
-        class HOURLY_DATA {
-            +int employee_id
-            +date work_date
-            +float hours_worked
-        }
-    
-        class ORDER_EVENTS {
-            +string order_url_token
-            +int employee_id
-            +timestamp event_datetime
-            +string event_type
-        }
-    
-        ORDER_EVENTS --> EMPLOYEE_SCD
-        HOURLY_DATA --> EMPLOYEE_SCD
+flowchart LR
+    S[Source System]
+    E[Event Semantics]
+    G[Grain]
+    I[Identity + Time]
+    M[Data Model]
+    K[Metric Logic]
+    V[Validation]
+    A[Automation]
+    D[Decision Support]
+
+    S --> E
+    E --> G
+    G --> I
+    I --> M
+    M --> K
+    K --> V
+    V --> A
+    A --> D
 ```
 
-Built a **Type 2 Slowly Changing Dimension (SCD)** that tracks every change to cost center and manager assignment with effective dates. Now you can ask "who was this person's supervisor on March 14, 2023?" and get the right answer.
+The questions I care about are things like:
 
-This was a problem no one else at Truepill could solve. It became the foundation for all workforce reporting.
+* What business event does this record actually represent?
+* What is the true grain?
+* Which timestamp corresponds to the event being measured?
+* Is this current state or historical state?
+* Which source is authoritative?
+* What did a join add, remove, or duplicate?
+* Does the metric remain valid under different filter contexts?
+* Is the discrepancy in the calculation, transformation, source data, or underlying operational process?
 
-* * *
+The goal is not simply to produce a result.
 
-### Problem 3: Complex Joins
+It is to understand the mechanism well enough that the result can be trusted and the solution can be reused.
 
-**The challenge:** Pharmacy fulfillment involves orders → items → prescriptions → claims → inventory → patients → employees. Traditional reports showed one table at a time.
+---
 
-**My solution:**
+# 🎓 Education
 
-```mermaid
-    flowchart LR
-        O[ORDERS] -->|1:M| OI[ORDER_ITEMS]
-        OI -->|M:1| P[PRESCRIPTIONS]
-        P -->|M:1| IC[INSURANCE_CLAIMS]
-        O -->|1:M| S[SHIPMENTS]
-        OI -->|M:1| INV[INVENTORY]
-        P -->|M:1| PAT[PATIENTS]
-        OI -->|M:1| EMP[EMPLOYEES]
-```
+**B.S. Data Science — University of Maryland Global Campus**
+*In Progress · Expected 2028*
 
-Built a 20+ join Looker Explore that allowed C-Suite see the full journey of a prescription from order to patient delivery with drill downs.
-
-* * *
-
-### Problem 4: Nested JSON in Source Systems
-
-**The challenge:** Pharmacy system stored user data in nested JSON arrays — doctors had both `EMR_CONFIGURATION` and `PROGRAMS` as arrays, each containing multiple values.
-
-**My solution:** Used Snowflake's `LATERAL FLATTEN` to explode these arrays into rows:
-
-    SELECT 
-        D._ID AS USER_ID,
-        EMRCONFIGURATION.VALUE:"_id"::STRING AS EMR_PROGRAM_ID
-    FROM STITCH.SOURCE.DOCTORS D,
-    LATERAL FLATTEN(INPUT => D.EMRCONFIGURATION:"programs") EMRCONFIGURATION
-
-This let us finally do analytics on which programs each doctor was certified for.
-
-* * *
-
-## 🎓 Education
-
-**Bachelor's degree, Data Science** — University of Maryland Global Campus  
-*Jul 2025 — Expected 2028*  
 **GPA:** 4.0
-**Honors:** Dean's List (Fall 2025)
 
-* * *
+**Academic focus:** Algorithmic bias, Responsible AI, data governance, and human-centered evaluation of automated systems
 
-### 📜 Certifications
-
-**LinkedIn Learning:**
-
-* SQL for Data Analysis (2026)
-* Analyzing and Visualizing Data in Looker (2025)
-* Prepare Data for Looker Dashboards and Reports (2025)
-* Developing Data Models with LookML (2025)
-* Alteryx for Healthcare (2026)
-* Alteryx Analytics Tips and Tricks (2026)
-* Introduction to Alteryx (2026)
-* Data-Driven DEI Decision-Making (2026)
-* The Data Analytics of Diversity, Inclusion, and Well-being (2026)
-* Auditing Design Systems for Accessibility (2026)
-
-**Notion:**
-
-* Notion Advanced Badge (2026)
-* Notion Workflows Badge (2026)
-* Notion Essentials Badge (2026)
-
-**Microsoft (GitHub):**
-
-* Introduction to Git (2025)
-* Introduction to GitHub (2025)
-* Introduction to GitHub Actions (2025)
-* Manage and configure repositories (2025)
-
-**Coursera:**
-
-* What is Data Science? — IBM (2023)
+**Honors:** Dean's List · Alpha Sigma Lambda, Tau Chapter — Fall 2026 Inductee
